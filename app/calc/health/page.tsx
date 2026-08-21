@@ -268,6 +268,20 @@ export default function HealthPage() {
               퇴사하고 2주 안에 해야 할 일 →
             </Link>
           </li>
+          {/* 임의계속가입보다 먼저 확인해야 할 선택지 — 자격이 되면 보험료가 0원이라
+              이 계산기의 결과 자체가 필요 없어진다. 건강보험노트로 보낸다. */}
+          <li>
+            <a
+              href="https://health.lifebanjang.com/calc/dependent"
+              className="text-accent underline-offset-4 hover:underline"
+            >
+              피부양자 자격 판정 (건강보험노트) →
+            </a>
+            <span className="block text-sm text-muted">
+              가족의 피부양자가 되면 보험료가 0원입니다. 임의계속가입보다 먼저
+              확인해 볼 선택지입니다.
+            </span>
+          </li>
         </ul>
       </section>
     </div>
