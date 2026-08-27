@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import EligibilityCalculator from "@/components/EligibilityCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -291,6 +292,7 @@ export default function EligibilityPage() {
         </ul>
       </section>
       <CalcGuides calcHref="/calc/eligibility" />
+      <RelatedTools calc="/calc/eligibility" />
     </div>
   );
 }

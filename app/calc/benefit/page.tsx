@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import JobseekerCalculator from "@/components/JobseekerCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -318,6 +319,7 @@ export default function BenefitPage() {
         </ul>
       </section>
       <CalcGuides calcHref="/calc/benefit" />
+      <RelatedTools calc="/calc/benefit" />
     </div>
   );
 }

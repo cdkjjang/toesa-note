@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import HealthCalculator from "@/components/HealthCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -286,6 +287,7 @@ export default function HealthPage() {
         </ul>
       </section>
       <CalcGuides calcHref="/calc/health" />
+      <RelatedTools calc="/calc/health" />
     </div>
   );
 }
