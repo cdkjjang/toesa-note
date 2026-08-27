@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateField, MoneyField, ResultCard, parseMoney } from "./fields";
 import OptionGroup from "./OptionGroup";
 import {
@@ -37,8 +37,15 @@ export default function HealthCalculator() {
           canBeDependent: dependent === "yes",
         });
 
+  // 정적 프리렌더라 렌더 본문에서 오늘 날짜를 구하면 서버 HTML에 '빌드 날짜' 기준
+  // 남은 일수가 담겨 브라우저 계산과 어긋난다. 마운트 후에 채운다.
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(todayISO());
+  }, []);
+
   const deadline = billDue ? applyDeadline(billDue) : null;
-  const left = deadline ? daysUntil(deadline, todayISO()) : null;
+  const left = deadline && today ? daysUntil(deadline, today) : null;
 
   return (
     <div className="rounded-2xl border border-border-soft bg-card p-5 shadow-sm">

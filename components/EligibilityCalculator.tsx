@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateField, MoneyField, ResultCard, parseMoney } from "./fields";
 import OptionGroup from "./OptionGroup";
 import {
@@ -36,10 +36,17 @@ export default function EligibilityCalculator() {
   const [insured, setInsured] = useState<InsuredBracket>("y3to5");
 
   const days = parseMoney(insuredDays);
-  const today = todayISO();
+
+  // 이 페이지는 정적으로 미리 렌더링된다. 렌더 본문에서 오늘 날짜를 구하면
+  // 서버 HTML에는 '빌드 날짜' 기준 D-day가 담겨, 브라우저가 계산한 값과 어긋난다.
+  // 그래서 마운트 후에 채우고, 그 전에는 결과를 내지 않는다.
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(todayISO());
+  }, []);
 
   const result =
-    days === null || leaveDate === ""
+    days === null || leaveDate === "" || today === ""
       ? null
       : calcEligibility({
           insuredDays: days,
