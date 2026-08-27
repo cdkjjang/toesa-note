@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import HealthCalculator from "@/components/HealthCalculator";
@@ -72,6 +73,8 @@ export default function HealthPage() {
       </p>
 
       <HealthCalculator />
+
+      <NextStep calc="/calc/health" />
 
       <AdSlot slot="health-below-tool" />
 

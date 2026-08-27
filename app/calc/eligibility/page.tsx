@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import EligibilityCalculator from "@/components/EligibilityCalculator";
@@ -74,6 +75,8 @@ export default function EligibilityPage() {
       </p>
 
       <EligibilityCalculator />
+
+      <NextStep calc="/calc/eligibility" />
 
       <AdSlot slot="eligibility-below-tool" />
 

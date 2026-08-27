@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import JobseekerCalculator from "@/components/JobseekerCalculator";
@@ -72,6 +73,8 @@ export default function BenefitPage() {
       </p>
 
       <JobseekerCalculator />
+
+      <NextStep calc="/calc/benefit" />
 
       <AdSlot slot="benefit-below-tool" />
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import EarlyReemploymentCalculator from "@/components/EarlyReemploymentCalculator";
@@ -72,6 +73,8 @@ export default function EarlyPage() {
       </p>
 
       <EarlyReemploymentCalculator />
+
+      <NextStep calc="/calc/early" />
 
       <AdSlot slot="early-below-tool" />
 
