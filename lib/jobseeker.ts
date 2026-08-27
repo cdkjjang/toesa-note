@@ -53,11 +53,35 @@ export const LIMITS_BY_YEAR: Record<number, YearlyLimits> = {
   2026: { dailyMax: 68_100, wageDailyMax: 113_500, dailyMin: 66_048, minWage: 10_320 },
 };
 
+/**
+ * 표에 값이 있는 이직 연도 (오름차순).
+ * 화면의 연도 선택지는 이 배열에서 만든다 — 하드코딩하면 새 연도가 와도
+ * 사용자가 자기 연도를 고를 수 없는데 화면은 옛 연도를 기준이라고 표시하게 된다.
+ */
+export const AVAILABLE_YEARS = Object.keys(LIMITS_BY_YEAR)
+  .map(Number)
+  .sort((a, b) => a - b);
+
 /** 표에 없는 연도는 가장 최근 값으로 갈음한다. */
-export const LATEST_YEAR = 2026;
+export const LATEST_YEAR = AVAILABLE_YEARS.at(-1) ?? 2026;
 
 export function limitsForYear(year: number): YearlyLimits {
   return LIMITS_BY_YEAR[year] ?? LIMITS_BY_YEAR[LATEST_YEAR];
+}
+
+/**
+ * 해당 연도의 고시값이 표에 있는지. false면 LATEST_YEAR 값으로 갈음해 계산하므로
+ * 화면에서 "아직 고시가 반영되지 않았다"고 밝혀야 한다.
+ */
+export function hasLimitsForYear(year: number): boolean {
+  return LIMITS_BY_YEAR[year] !== undefined;
+}
+
+/** 오늘(또는 주어진 시점) 기준으로 기본 선택할 이직 연도 — 표 범위를 넘지 않게 자른다. */
+export function defaultLeaveYear(base: Date = new Date()): number {
+  const y = base.getFullYear();
+  if (hasLimitsForYear(y)) return y;
+  return y > LATEST_YEAR ? LATEST_YEAR : (AVAILABLE_YEARS[0] ?? LATEST_YEAR);
 }
 
 /** 하한액 산식 — 최저임금의 80% × 1일 소정근로 8시간 */

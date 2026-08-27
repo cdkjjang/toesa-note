@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MoneyField, ResultCard, parseMoney } from "./fields";
 import OptionGroup from "./OptionGroup";
 import {
+  AVAILABLE_YEARS,
   INSURED_BRACKETS,
+  LATEST_YEAR,
   calcJobseeker,
+  defaultLeaveYear,
+  hasLimitsForYear,
   rateAppliesWageRange,
   type InsuredBracket,
 } from "@/lib/jobseeker";
@@ -17,16 +21,40 @@ const AGE_OPTIONS = [
   { value: "disabled" as const, label: "장애인", hint: "나이 무관" },
 ];
 
-const YEAR_OPTIONS = [
-  { value: "2026" as const, label: "2026년" },
-  { value: "2025" as const, label: "2025년" },
-];
+// 고시값이 있는 연도 (서버·브라우저가 항상 같은 값을 내야 하므로 여기서 날짜를 보지 않는다)
+const BASE_YEAR_OPTIONS = [...AVAILABLE_YEARS]
+  .sort((a, b) => b - a)
+  .map((y) => ({ value: String(y), label: `${y}년` }));
 
 export default function JobseekerCalculator() {
   const [wage, setWage] = useState("300");
   const [ageGroup, setAgeGroup] = useState<"under50" | "over50" | "disabled">("under50");
   const [insured, setInsured] = useState<InsuredBracket>("y3to5");
-  const [year, setYear] = useState<"2026" | "2025">("2026");
+  // 정적 프리렌더라 서버는 '빌드 시점', 브라우저는 '조회 시점'의 연도를 본다.
+  // 초기값을 오늘로 계산하면 연말연시에 hydration 불일치가 나므로,
+  // 양쪽이 같은 값(표의 최신 연도)으로 시작하고 마운트 후 보정한다.
+  const [year, setYear] = useState<string>(String(LATEST_YEAR));
+  // 고시가 아직 안 나온 올해(예: 2027년 1월)에 이직한 사람도 자기 연도를 고를 수 있도록
+  // 마운트 후에 선택지를 한 칸 더 연다.
+  const [extraYear, setExtraYear] = useState<number | null>(null);
+  useEffect(() => {
+    const thisYear = new Date().getFullYear();
+    if (!AVAILABLE_YEARS.includes(thisYear) && thisYear > LATEST_YEAR) {
+      // 고시 전이라도 실제 이직 연도를 고르게 하고, 갈음해 계산했다고 화면에 밝힌다.
+      setExtraYear(thisYear);
+      setYear(String(thisYear));
+      return;
+    }
+    setYear(String(defaultLeaveYear()));
+  }, []);
+
+  const yearOptions =
+    extraYear === null
+      ? BASE_YEAR_OPTIONS
+      : [{ value: String(extraYear), label: `${extraYear}년` }, ...BASE_YEAR_OPTIONS];
+  const yearNum = Number(year);
+  // 선택한 연도의 고시가 아직 표에 없으면 최근 값으로 갈음해 계산한다.
+  const usingFallback = !hasLimitsForYear(yearNum);
 
   const manwon = parseMoney(wage);
   const monthlyWage = manwon === null ? null : manwon * 10_000;
@@ -72,13 +100,24 @@ export default function JobseekerCalculator() {
 
       <OptionGroup
         label="이직일이 속한 연도"
-        options={YEAR_OPTIONS}
+        options={yearOptions}
         value={year}
         onChange={setYear}
       />
       <p className="-mt-3 mb-5 text-sm text-muted">
         상한액은 <strong>신청일이 아니라 이직일</strong> 기준입니다. 2025년 12월에
         퇴사했다면 2026년에 신청해도 옛 상한액(66,000원)이 적용됩니다.
+        {usingFallback && (
+          <>
+            {" "}
+            <strong>
+              {yearNum}년 고시가 아직 반영되지 않아 {LATEST_YEAR}년 값으로
+              계산했습니다.
+            </strong>{" "}
+            상한액은 보통 연말·연초에 고시되므로, 확정 후 고용센터나 고용24에서
+            다시 확인하세요.
+          </>
+        )}
       </p>
 
       {result === null ? (
@@ -147,7 +186,7 @@ export default function JobseekerCalculator() {
           )}
 
           <p className="mt-4 text-sm text-muted">
-            {year === "2026" ? "2026년" : "2025년"} 기준 · 상한{" "}
+            {usingFallback ? `${LATEST_YEAR}년` : `${yearNum}년`} 기준 · 상한{" "}
             {formatWon(result.limits.dailyMax)} / 하한{" "}
             {formatWon(result.limits.dailyMin)}(최저시급{" "}
             {result.limits.minWage.toLocaleString()}원 × 80% × 8시간)

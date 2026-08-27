@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   BENEFIT_DAYS,
   BENEFIT_RATE,
+  LATEST_YEAR,
   LIMITS_BY_YEAR,
   calcJobseeker,
   dailyMinFromMinWage,
+  defaultLeaveYear,
+  hasLimitsForYear,
   limitsForYear,
   rateAppliesWageRange,
   type JobseekerInput,
@@ -18,6 +21,20 @@ import {
 // **숫자 자체를 리터럴로 박아** 고시가 바뀌면 이 블록이 먼저 깨지게 한다.
 // ─────────────────────────────────────────────────────────────
 describe("고시값 고정 (2026년)", () => {
+  it("표에 없는 연도는 가장 최근 고시값으로 갈음하고, 그 사실을 알 수 있어야 한다", () => {
+    expect(hasLimitsForYear(2026)).toBe(true);
+    expect(hasLimitsForYear(2025)).toBe(true);
+    expect(hasLimitsForYear(2027)).toBe(false); // 고시되면 표에 추가할 것
+    expect(limitsForYear(2027)).toEqual(limitsForYear(LATEST_YEAR));
+  });
+
+  it("기본 선택 연도는 표 범위를 넘지 않는다", () => {
+    expect(defaultLeaveYear(new Date("2026-08-27T00:00:00"))).toBe(2026);
+    expect(defaultLeaveYear(new Date("2025-03-01T00:00:00"))).toBe(2025);
+    // 표에 없는 미래 연도는 가장 최근 연도로 자른다
+    expect(defaultLeaveYear(new Date("2028-01-01T00:00:00"))).toBe(LATEST_YEAR);
+  });
+
   it("구직급여일액 상한 68,100원 — 2019년부터 66,000원으로 동결됐다가 2026년 인상", () => {
     expect(LIMITS_BY_YEAR[2026].dailyMax).toBe(68_100);
   });
