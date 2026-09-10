@@ -22,14 +22,12 @@ function bodyLength(g: (typeof guides)[number]): number {
 }
 
 /**
- * 2026-09-10 통합 뒤에도 1,500자를 밑도는 글 — **남은 숙제 목록이다.**
- * 이번 작업은 노트당 한 편만 합치는 범위였다(워크스페이스 CLAUDE.md 8장 계획표의
- * "퇴사·부동산·연금·상속 각 −1"). 짝을 찾아 합치면 여기서 지운다.
+ * 1,500자를 밑도는 글 — **남은 숙제 목록이다.**
+ * 2026-09-10 2차 통합에서 `severance-and-benefit`은 `after-quitting-checklist`로,
+ * `early-reemployment-timing`은 `job-search-activity`로 합쳐 목록이 비었다.
+ * **여기에 새 슬러그를 추가하지 말 것.**
  */
-const KNOWN_THIN = [
-  "severance-and-benefit", // 1442자
-  "early-reemployment-timing", // 1479자
-];
+const KNOWN_THIN: string[] = [];
 
 describe("가이드 데이터", () => {
   it("슬러그가 중복되지 않는다", () => {
@@ -153,7 +151,7 @@ describe("통합으로 사라진 URL의 301", () => {
   it("출발지는 사라진 글이고 목적지는 실재한다", async () => {
     const known = new Set(guides.map((g) => g.slug));
     const rules = await nextConfig.redirects!();
-    expect(rules.length).toBe(1);
+    expect(rules.length).toBe(3);
 
     const bad: string[] = [];
     for (const r of rules) {

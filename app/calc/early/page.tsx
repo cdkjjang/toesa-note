@@ -262,7 +262,7 @@ export default function EarlyPage() {
           </li>
           <li>
             <Link
-              href="/guide/early-reemployment-timing"
+              href="/guide/job-search-activity"
               className="text-accent underline-offset-4 hover:underline"
             >
               언제 취업해야 가장 이득인가 →

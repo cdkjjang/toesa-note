@@ -42,6 +42,20 @@ const nextConfig: NextConfig = {
         destination: "/guide/health-insurance-after-quitting",
         permanent: true,
       },
+      // 퇴직금·연차수당·실업급여를 갈라 설명하던 글은 '퇴사 직후 체크리스트'가
+      // 이미 그 항목들을 기한과 함께 다루고 있어 그리로 합쳤다.
+      {
+        source: "/guide/severance-and-benefit",
+        destination: "/guide/after-quitting-checklist",
+        permanent: true,
+      },
+      // 조기재취업수당 '언제 취업하면 이득인가'는 실업인정·재취업활동과
+      // 같은 국면(수급 중에 하는 일)이라 한 글로 이어 붙였다.
+      {
+        source: "/guide/early-reemployment-timing",
+        destination: "/guide/job-search-activity",
+        permanent: true,
+      },
     ];
   },
 };
