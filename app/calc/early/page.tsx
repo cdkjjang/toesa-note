@@ -7,9 +7,12 @@ import EarlyReemploymentCalculator from "@/components/EarlyReemploymentCalculato
 import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { LATEST_YEAR } from "@/lib/jobseeker";
 
+// ⚠️ 제목의 연도를 **직접 적지 말 것.** `lib/jobseeker.ts`의 `LIMITS_BY_YEAR`에서
+//    끌어온다. 표에 새 연도를 넣으면 제목이 함께 따라온다.
 export const metadata: Metadata = {
-  title: "조기재취업수당 계산기 — 남은 실업급여의 절반",
+  title: `${LATEST_YEAR}년 조기재취업수당 계산기 — 남은 실업급여의 절반`,
   description:
     "실업급여를 받다가 일찍 취업하면 남은 구직급여의 절반을 받습니다. 다섯 가지 요건을 하나씩 확인하고 예상 금액을 계산합니다.",
   alternates: { canonical: "/calc/early" },

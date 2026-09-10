@@ -7,11 +7,17 @@ import JobseekerCalculator from "@/components/JobseekerCalculator";
 import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { LATEST_YEAR, limitsForYear } from "@/lib/jobseeker";
+
+// ⚠️ 제목·설명의 연도와 고시값을 **직접 적지 말 것.** `lib/jobseeker.ts`의
+//    `LIMITS_BY_YEAR`에서 끌어온다. 표에 새 연도를 넣으면 제목이 함께 따라오고,
+//    손으로 적었을 때처럼 제목만 낡아 계산 결과와 어긋나는 일이 없다.
+//    한국어 검색은 "2026 실업급여"처럼 연도를 붙이므로 제목에 연도를 둔다.
+const latest = limitsForYear(LATEST_YEAR);
 
 export const metadata: Metadata = {
-  title: "실업급여 계산기 — 얼마를 며칠 받는지 30초 만에",
-  description:
-    "월급과 나이, 고용보험 가입기간을 넣으면 구직급여 일액과 소정급여일수, 예상 총액을 계산합니다. 2026년 상한 68,100원·하한 66,048원 반영.",
+  title: `${LATEST_YEAR}년 실업급여 계산기 — 얼마를 며칠 받는지 30초 만에`,
+  description: `월급과 나이, 고용보험 가입기간을 넣으면 구직급여 일액과 소정급여일수, 예상 총액을 계산합니다. ${LATEST_YEAR}년 상한 ${latest.dailyMax.toLocaleString()}원·하한 ${latest.dailyMin.toLocaleString()}원 반영.`,
   alternates: { canonical: "/calc/benefit" },
 };
 

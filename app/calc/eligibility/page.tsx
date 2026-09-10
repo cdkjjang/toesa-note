@@ -7,9 +7,12 @@ import EligibilityCalculator from "@/components/EligibilityCalculator";
 import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { LATEST_YEAR } from "@/lib/jobseeker";
 
+// ⚠️ 제목의 연도를 **직접 적지 말 것.** `lib/jobseeker.ts`의 `LIMITS_BY_YEAR`에서
+//    끌어온다. 표에 새 연도를 넣으면 제목이 함께 따라온다.
 export const metadata: Metadata = {
-  title: "실업급여 수급자격 · 신청기한 계산기",
+  title: `${LATEST_YEAR}년 실업급여 수급자격 · 신청기한 계산기`,
   description:
     "퇴사 사유와 고용보험 가입일수로 수급자격을 판정하고, 수급기간 만료일까지 며칠 남았는지, 늦게 신청하면 며칠치를 못 받는지 계산합니다.",
   alternates: { canonical: "/calc/eligibility" },
