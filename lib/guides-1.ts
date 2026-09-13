@@ -5,7 +5,7 @@ import type { Guide } from "./guide-types";
 export const guides1: Guide[] = [
   {
     slug: "after-quitting-checklist",
-    title: "퇴사하고 2주 안에 해야 할 일 — 그리고 퇴직금·연차수당·실업급여 갈라보기",
+    title: "퇴사하고 2주 안에 해야 할 일 — 퇴직금·연차수당·실업급여",
     description:
       "퇴사 직후에 시작되는 기한들이 있습니다. 실업급여 신청, 건강보험 전환, 국민연금 처리에 더해 퇴직금·연차수당·실업급여가 서로 어떻게 다른지까지 순서대로 정리했습니다.",
     updated: "2026-09-10",
@@ -394,7 +394,7 @@ export const guides1: Guide[] = [
 
   {
     slug: "job-search-activity",
-    title: "실업인정과 재취업활동 — 무엇을 인정해 주고, 언제 취업하면 가장 이득인가",
+    title: "실업인정과 재취업활동 — 무엇을 인정해 주고 언제 취업해야 이득인가",
     description:
       "실업인정을 받으려면 구직활동을 증명해야 합니다. 어떤 활동이 인정되는지, 그리고 조기재취업수당 때문에 취업 시점에 따라 총수입이 어떻게 갈리는지 함께 정리했습니다.",
     updated: "2026-09-10",
