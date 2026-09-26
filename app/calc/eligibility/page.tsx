@@ -183,7 +183,7 @@ export default function EligibilityPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-19"
+        updated="2026-08-27"
         basis={[
           {
             law: "고용보험법 제40조 (구직급여의 수급 요건)",

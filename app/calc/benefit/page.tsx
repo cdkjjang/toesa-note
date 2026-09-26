@@ -211,7 +211,7 @@ export default function BenefitPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-19"
+        updated="2026-08-27"
         basis={[
           {
             law: "고용보험법 제46조 (구직급여일액)",

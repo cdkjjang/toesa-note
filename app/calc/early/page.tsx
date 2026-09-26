@@ -161,7 +161,7 @@ export default function EarlyPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-19"
+        updated="2026-08-27"
         basis={[
           {
             law: "고용보험법 제64조 (조기재취업 수당)",
