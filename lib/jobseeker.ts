@@ -16,7 +16,8 @@
 //   지급률 60%를 역산하면
 //     · 기초일액 110,080원 이하 → 무조건 하한 66,048원
 //     · 기초일액 113,500원 이상 → 무조건 상한 68,100원
-//   즉 월급 약 335만원 미만이면 급여가 얼마든 결과가 같다. "60%를 받는다"는
+//   즉 하루 8시간 근무자는 월급 약 335만원 미만이면 급여가 얼마든 결과가 같다.
+//   (하한은 1일 소정근로시간에 비례하므로 단시간 근로자는 `dailyHours`로 낮춘다.) "60%를 받는다"는
 //   설명이 실제로 들어맞는 사람은 극히 일부다. 계산 결과에 어느 쪽이
 //   적용됐는지(`bound`)를 반드시 표시해 이 사실이 드러나게 한다.
 //
@@ -110,7 +111,7 @@ export const BENEFIT_DAYS: Record<"under50" | "over50", Record<InsuredBracket, n
   over50: { under1: 120, y1to3: 180, y3to5: 210, y5to10: 240, over10: 270 },
 };
 
-/** 대기기간 — 수급자격 인정일부터 7일은 지급되지 않는다 (법 제49조) */
+/** 대기기간 — 실업의 신고일부터 7일은 지급되지 않는다 (법 제49조) */
 export const WAITING_DAYS = 7;
 
 /** 수급기간 — 이직일 다음날부터 12개월. 이 기간이 지나면 남은 일수가 있어도 끝난다. */
@@ -129,7 +130,16 @@ export interface JobseekerInput {
   insured: InsuredBracket;
   /** 이직일이 속한 연도 — 상한액이 이 연도 기준으로 정해진다 */
   leaveYear: number;
+  /**
+   * 이직 전 1일 소정근로시간 (기본 8). 하한액은 "최저임금 × 80% × 1일 소정근로시간"이라
+   * (법 제45조④·제46조) 단시간 근로자는 하한이 66,048원보다 낮다.
+   * 2026-09-28 점검 전까지 8시간으로 고정해 단시간 근로자를 과대 계산했다.
+   */
+  dailyHours?: number;
 }
+
+/** 하한액이 전제하는 1일 소정근로시간 */
+export const FULL_TIME_HOURS = 8;
 
 /** 일액이 어느 경계에 걸렸는지 */
 export type Bound = "min" | "max" | "none";
@@ -151,8 +161,12 @@ export interface JobseekerResult {
   total: number;
   /** 월 환산액 (30일 기준, 원) — 체감용 */
   monthlyEquivalent: number;
-  /** 적용된 고시값 */
+  /** 적용된 고시값 (dailyMin은 8시간 기준) */
   limits: YearlyLimits;
+  /** 실제로 적용한 하한액 — 1일 소정근로시간을 반영한 값 (원) */
+  dailyMinApplied: number;
+  /** 하한 계산에 쓴 1일 소정근로시간 */
+  dailyHours: number;
   /** 임금일액 상한에 잘렸는지 */
   wageCapped: boolean;
 }
@@ -169,10 +183,19 @@ export function calcJobseeker(input: JobseekerInput): JobseekerResult {
 
   const rawDaily = Math.floor(baseDaily * BENEFIT_RATE);
 
+  const dailyHours = Math.min(
+    FULL_TIME_HOURS,
+    Math.max(1, input.dailyHours ?? FULL_TIME_HOURS)
+  );
+  const dailyMinApplied =
+    dailyHours === FULL_TIME_HOURS
+      ? limits.dailyMin
+      : Math.round(limits.minWage * 0.8 * dailyHours);
+
   let dailyBenefit = rawDaily;
   let bound: Bound = "none";
-  if (rawDaily < limits.dailyMin) {
-    dailyBenefit = limits.dailyMin;
+  if (rawDaily < dailyMinApplied) {
+    dailyBenefit = dailyMinApplied;
     bound = "min";
   } else if (rawDaily > limits.dailyMax) {
     dailyBenefit = limits.dailyMax;
@@ -192,6 +215,8 @@ export function calcJobseeker(input: JobseekerInput): JobseekerResult {
     total: dailyBenefit * benefitDays,
     monthlyEquivalent: dailyBenefit * 30,
     limits,
+    dailyMinApplied,
+    dailyHours,
     wageCapped,
   };
 }

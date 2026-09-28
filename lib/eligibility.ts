@@ -26,7 +26,7 @@ export const LOOKBACK_MONTHS = 18;
 /** 수급기간 — 이직일 다음날부터 12개월 (법 제48조) */
 export const CLAIM_PERIOD_MONTHS = 12;
 
-/** 대기기간 — 수급자격 인정일부터 7일은 지급 제외 (법 제49조) */
+/** 대기기간 — 실업의 신고일부터 7일은 지급 제외 (법 제49조) */
 export const WAITING_DAYS = 7;
 
 /** 이직 사유 구분 */
@@ -93,9 +93,14 @@ export interface EligibilityResult {
   eligible: boolean;
   /** 경고가 있는지 (조건부 가능) */
   hasWarning: boolean;
-  /** 수급기간 만료일 (YYYY-MM-DD) — 이직일 다음날 + 12개월 */
+  /**
+   * 수급기간의 마지막 날 (YYYY-MM-DD).
+   * 법 제48조는 "이직일의 다음 날부터 계산하기 시작하여 12개월 내"라서
+   * 6/30 이직이면 7/1부터 이듬해 6/30까지다. 2026-09-28 점검 전까지는
+   * 7/1(기간이 끝난 다음 날)을 만료일로 보여줬다.
+   */
   expiryDate: string;
-  /** 만료까지 남은 일수. 이미 지났으면 음수 */
+  /** 마지막 날까지 남은 일수. 마지막 날 당일은 0, 이미 지났으면 음수 */
   daysLeft: number;
   /** 이직일부터 오늘까지 지난 일수 */
   daysSinceLeave: number;
@@ -136,9 +141,7 @@ export function calcEligibility(input: EligibilityInput): EligibilityResult {
   const leave = parseDate(input.leaveDate);
   const today = parseDate(input.today);
 
-  // 수급기간은 이직일 다음날부터 12개월
-  const start = new Date(leave.getTime() + 86_400_000);
-  const expiry = addMonths(start, CLAIM_PERIOD_MONTHS);
+  const expiry = claimPeriodLastDay(input.leaveDate);
   const daysLeft = diffDays(today, expiry);
   const daysSinceLeave = diffDays(leave, today);
   const expired = daysLeft < 0;
@@ -209,22 +212,35 @@ export function calcEligibility(input: EligibilityInput): EligibilityResult {
   };
 }
 
+/** 수급기간의 마지막 날 — 이직일 다음 날부터 12개월이 되는 날의 전날 */
+export function claimPeriodLastDay(leaveDate: string): Date {
+  const start = new Date(parseDate(leaveDate).getTime() + 86_400_000);
+  return new Date(addMonths(start, CLAIM_PERIOD_MONTHS).getTime() - 86_400_000);
+}
+
+/**
+ * 오늘 신청(실업 신고)하면 수급기간 안에 받을 수 있는 날수.
+ * 신고일부터 7일은 대기기간이라(법 제49조) 신고일 + 7일째부터 마지막 날까지다.
+ */
+export function payableDaysIfApplyToday(daysLeft: number): number {
+  return Math.max(0, daysLeft + 1 - WAITING_DAYS);
+}
+
 /**
  * 늦게 신청해서 못 받게 되는 일수.
  *
- * 수급기간 만료일까지 남은 날이 소정급여일수보다 적으면 그 차이만큼 날아간다.
- * "언제까지 신청해야 다 받나"를 뒤집어 계산한 것.
+ * ⚠️ 대기기간 7일을 빼고 센다. 2026-09-28 점검 전까지는 빼지 않아
+ * 손실을 7일 적게 보여줬고, 그 사이 구간에서는 이미 지난 날짜를
+ * "이때까지 신청하면 다 받는다"고 안내했다. `lastSafeApplyDate`와 짝이 맞아야 한다.
  */
 export function forfeitedDays(daysLeft: number, benefitDays: number): number {
-  if (daysLeft >= benefitDays) return 0;
-  return benefitDays - Math.max(0, daysLeft);
+  return Math.max(0, benefitDays - payableDaysIfApplyToday(daysLeft));
 }
 
 /** 소정급여일수를 다 받으려면 늦어도 이 날까지는 신청해야 한다. */
 export function lastSafeApplyDate(leaveDate: string, benefitDays: number): string {
-  const start = new Date(parseDate(leaveDate).getTime() + 86_400_000);
-  const expiry = addMonths(start, CLAIM_PERIOD_MONTHS);
-  // 대기기간 7일 + 소정급여일수를 만료일 안에 소화해야 한다
-  const deadline = new Date(expiry.getTime() - (benefitDays + WAITING_DAYS) * 86_400_000);
+  const last = claimPeriodLastDay(leaveDate);
+  // 신고일 + 대기 7일 + 소정급여일수 − 1 ≤ 마지막 날
+  const deadline = new Date(last.getTime() - (benefitDays + WAITING_DAYS - 1) * 86_400_000);
   return formatDate(deadline);
 }

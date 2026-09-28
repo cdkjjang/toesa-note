@@ -81,15 +81,22 @@ describe("수급자격 판정", () => {
 });
 
 describe("수급기간 — 이직일 다음날부터 12개월", () => {
-  it("만료일은 이직일 다음날 + 12개월", () => {
-    const r = calcEligibility(base); // 이직 2026-06-30 → 시작 07-01 → 만료 2027-07-01
-    expect(r.expiryDate).toBe("2027-07-01");
+  it("마지막 날은 이직일 다음날부터 12개월 되는 날의 전날 (법 제48조)", () => {
+    const r = calcEligibility(base); // 이직 2026-06-30 → 2026-07-01 ~ 2027-06-30
+    expect(r.expiryDate).toBe("2027-06-30");
+  });
+
+  it("마지막 날 당일은 아직 만료가 아니다", () => {
+    const r = calcEligibility({ ...base, today: "2027-06-30" });
+    expect(r.daysLeft).toBe(0);
+    expect(r.expired).toBe(false);
+    expect(calcEligibility({ ...base, today: "2027-07-01" }).expired).toBe(true);
   });
 
   it("남은 일수를 센다", () => {
     const r = calcEligibility(base);
-    // 2026-08-19 → 2027-07-01
-    expect(r.daysLeft).toBe(316);
+    // 2026-08-19 → 2027-06-30
+    expect(r.daysLeft).toBe(315);
     expect(r.daysSinceLeave).toBe(50);
     expect(r.expired).toBe(false);
   });
@@ -113,25 +120,35 @@ describe("늦게 신청해서 날아가는 일수", () => {
     expect(forfeitedDays(300, 210)).toBe(0);
   });
 
-  it("남은 기간이 짧으면 그 차이만큼 못 받는다", () => {
-    expect(forfeitedDays(100, 210)).toBe(110);
+  it("대기기간 7일을 빼고 센다 — 100일 남았으면 받을 수 있는 날은 94일", () => {
+    expect(forfeitedDays(100, 210)).toBe(116);
   });
 
   it("이미 만료됐으면 전부 날아간다", () => {
     expect(forfeitedDays(-5, 240)).toBe(240);
   });
 
-  it("270일 자격자가 퇴사 5개월 뒤 신청하면 상당 부분을 잃는다", () => {
+  it("270일 자격자가 퇴사 5개월 뒤 신청하면 64일을 잃는다", () => {
     const r = calcEligibility({ ...base, today: "2026-11-30" });
-    const lost = forfeitedDays(r.daysLeft, 270);
-    expect(r.daysLeft).toBe(213);
-    expect(lost).toBe(57);
+    // 11/30 신고 → 대기 12/6까지 → 12/7 ~ 2027-06-30 = 206일
+    expect(r.daysLeft).toBe(212);
+    expect(forfeitedDays(r.daysLeft, 270)).toBe(64);
+  });
+});
+
+describe("마감일과 손실 일수는 짝이 맞아야 한다", () => {
+  it("마감일에 신청하면 손실 0, 하루 늦으면 1일", () => {
+    const deadline = lastSafeApplyDate("2026-06-30", 210); // 2026-11-26
+    const onTime = calcEligibility({ ...base, today: deadline });
+    expect(forfeitedDays(onTime.daysLeft, 210)).toBe(0);
+    const late = calcEligibility({ ...base, today: "2026-11-27" });
+    expect(forfeitedDays(late.daysLeft, 210)).toBe(1);
   });
 });
 
 describe("전부 받으려면 언제까지 신청해야 하나", () => {
   it("소정급여일수 + 대기기간 7일을 만료일 안에 소화해야 한다", () => {
-    // 만료 2027-07-01에서 (210 + 7)일을 뺀 날
+    // 마지막 날 2027-06-30에서 (210 + 7 − 1)일을 뺀 날
     expect(lastSafeApplyDate("2026-06-30", 210)).toBe("2026-11-26");
   });
 

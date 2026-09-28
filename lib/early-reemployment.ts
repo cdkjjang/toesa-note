@@ -12,7 +12,16 @@
 //   ③ 재취업한 곳에서 **12개월 이상 계속 고용**될 것
 //      (또는 자영업을 12개월 이상 계속 영위)
 //   ④ 재취업일 이전 **2년 이내에 조기재취업수당을 받은 적이 없을 것**
-//   ⑤ 이직 전 사업주에게 다시 고용된 것이 아닐 것
+//   ⑤ 이직 전 사업주(또는 관련 사업주)에게 다시 고용된 것이 아닐 것
+//   ⑥ **실업 신고일 이전에 채용을 약속한** 사업주에게 고용된 것이 아닐 것
+//   ⑦ 재취업 후 임금이 **고시 금액(월 574만원) 이상이 아닐 것**
+//      — 고용노동부고시 제2024-60호, 2025-01-01 ~ 2027-12-31 유효.
+//        재취업일부터 12개월간 받은 세전 임금 총액 ÷ 12로 본다.
+//   ⑥·⑦은 2026-09-28 점검에서 시행령 제84조 원문과 대조하며 추가했다.
+//   공무원(가입대상 공무원 제외)·산업기능요원 등 채용도 제외되지만 드물어 계산에 넣지 않았다.
+//
+// [65세 이상] 이직일 당시 65세 이상(65세 전부터 피보험자격을 유지한 사람)은
+//   6개월 계속 고용으로 완화되고, 재취업 직후부터 청구할 수 있다(시행령 제86조②).
 //
 // [금액]
 //   구직급여일액 × 남은 소정급여일수 × 1/2
@@ -40,6 +49,12 @@ export const REQUIRED_EMPLOYMENT_MONTHS_SENIOR = 6;
 /** 직전 수급 이력 제한 기간 (년) */
 export const PRIOR_CLAIM_BLOCK_YEARS = 2;
 
+/**
+ * 이 금액 이상의 월 임금을 받으면 지급하지 않는다 (시행령 제84조①1호라목,
+ * 고용노동부고시 제2024-60호, 2027-12-31까지 유효 — 만료 전에 새 고시를 확인할 것)
+ */
+export const HIGH_WAGE_EXCLUSION = 5_740_000;
+
 export interface EarlyReemploymentInput {
   /** 구직급여일액 (원) */
   dailyBenefit: number;
@@ -57,6 +72,10 @@ export interface EarlyReemploymentInput {
   sameEmployer: boolean;
   /** 이직일 당시 65세 이상인지 — 고용 기간 요건이 6개월로 완화 */
   senior: boolean;
+  /** 재취업한 곳의 세전 월 임금 (원). 없으면 판정하지 않는다 */
+  newMonthlyWage?: number;
+  /** 실업 신고일 이전에 채용을 약속받은 곳인지 */
+  promisedBeforeReport?: boolean;
 }
 
 export type ReqStatus = "pass" | "fail";
@@ -136,7 +155,25 @@ export function calcEarlyReemployment(
         ? "퇴사한 회사에 다시 들어간 경우에는 지급되지 않습니다."
         : "새 사업주에게 고용됐습니다.",
     },
+    {
+      label: "실업 신고 전에 채용을 약속한 곳이 아닐 것",
+      status: input.promisedBeforeReport ? "fail" : "pass",
+      detail: input.promisedBeforeReport
+        ? "실업 신고일 이전에 채용을 약속받은 사업주에게 고용되면 지급되지 않습니다."
+        : "제한 사유가 없습니다.",
+    },
   ];
+
+  if (input.newMonthlyWage !== undefined && input.newMonthlyWage > 0) {
+    const high = input.newMonthlyWage >= HIGH_WAGE_EXCLUSION;
+    requirements.push({
+      label: "재취업 월 임금 574만원 미만",
+      status: high ? "fail" : "pass",
+      detail: high
+        ? "재취업 후 12개월 평균 월 임금이 고시 금액(574만원) 이상이면 지급되지 않습니다."
+        : "고시 금액(월 574만원) 미만입니다.",
+    });
+  }
 
   const qualified = requirements.every((r) => r.status === "pass");
   const potentialAmount = Math.floor(

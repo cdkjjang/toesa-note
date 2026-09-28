@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  HIGH_WAGE_EXCLUSION,
   MIN_DAYS_AFTER_REPORT,
   PAYOUT_RATIO,
   REQUIRED_EMPLOYMENT_MONTHS,
@@ -80,6 +81,25 @@ describe("조기재취업수당 계산", () => {
     const r = calcEarlyReemployment({ ...base, sameEmployer: true });
     expect(r.qualified).toBe(false);
     expect(r.requirements[4].status).toBe("fail");
+  });
+
+  it("고시 금액 월 574만원 고정 (고용노동부고시 제2024-60호)", () => {
+    expect(HIGH_WAGE_EXCLUSION).toBe(5_740_000);
+  });
+
+  it("재취업 월 임금이 574만원 이상이면 탈락, 미만이면 통과", () => {
+    expect(calcEarlyReemployment({ ...base, newMonthlyWage: 5_740_000 }).qualified).toBe(false);
+    expect(calcEarlyReemployment({ ...base, newMonthlyWage: 5_739_999 }).qualified).toBe(true);
+  });
+
+  it("임금을 넣지 않으면 그 요건은 판정하지 않는다", () => {
+    const r = calcEarlyReemployment(base);
+    expect(r.requirements.some((q) => q.label.includes("574만"))).toBe(false);
+  });
+
+  it("실업 신고 전에 채용을 약속한 곳이면 탈락 (시행령 제84조①1호나목)", () => {
+    const r = calcEarlyReemployment({ ...base, promisedBeforeReport: true });
+    expect(r.qualified).toBe(false);
   });
 
   it("65세 이상은 6개월만 채우면 된다", () => {

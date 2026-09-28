@@ -23,6 +23,8 @@ export default function EarlyReemploymentCalculator() {
   const [priorClaim, setPriorClaim] = useState<"yes" | "no">("no");
   const [sameEmployer, setSameEmployer] = useState<"yes" | "no">("no");
   const [senior, setSenior] = useState<"yes" | "no">("no");
+  const [promised, setPromised] = useState<"yes" | "no">("no");
+  const [newWage, setNewWage] = useState("250");
 
   const daily = parseMoney(dailyBenefit);
   const total = parseMoney(benefitDays);
@@ -41,6 +43,8 @@ export default function EarlyReemploymentCalculator() {
           hadPriorClaim: priorClaim === "yes",
           sameEmployer: sameEmployer === "yes",
           senior: senior === "yes",
+          promisedBeforeReport: promised === "yes",
+          newMonthlyWage: (parseMoney(newWage) ?? 0) * 10_000,
         });
 
   const cutoff = total === null ? null : latestPaidDaysForBonus(total);
@@ -99,11 +103,29 @@ export default function EarlyReemploymentCalculator() {
         onChange={setSameEmployer}
       />
       <OptionGroup
+        label="실업 신고 전에 이미 채용을 약속받은 곳인가요"
+        options={YES_NO}
+        value={promised}
+        onChange={setPromised}
+      />
+      <MoneyField
+        label="새 직장 세전 월급"
+        hint="12개월 평균이 574만원 이상이면 지급되지 않습니다 (2027년 말까지 고시 기준)"
+        unit="만원"
+        value={newWage}
+        onChange={setNewWage}
+        placeholder="250"
+      />
+      <OptionGroup
         label="이직일 당시 65세 이상인가요"
         options={YES_NO}
         value={senior}
         onChange={setSenior}
       />
+      <p className="-mt-3 mb-5 text-sm text-muted">
+        65세 전부터 고용보험에 가입돼 있던 경우에 한해 6개월 고용으로 완화되고, 재취업
+        직후부터 청구할 수 있습니다.
+      </p>
 
       {result === null ? (
         <p className="text-muted">값을 모두 넣으면 결과가 나옵니다.</p>
@@ -163,7 +185,7 @@ export default function EarlyReemploymentCalculator() {
       {cutoff !== null && cutoff > 0 && (
         <div className="mt-5 rounded-xl border border-accent/40 bg-accent/5 p-4 text-[15px] leading-relaxed">
           <p className="font-bold text-accent-strong">
-            {cutoff}일치를 받기 전에 취업해야 합니다
+            받은 일수가 {cutoff}일을 넘기 전에 취업해야 합니다
           </p>
           <p className="mt-1.5 text-muted">
             소정급여일수 {total}일의 절반입니다. 하루라도 넘기면 조기재취업수당은
@@ -173,8 +195,8 @@ export default function EarlyReemploymentCalculator() {
       )}
 
       <p className="mt-5 text-sm leading-relaxed text-muted">
-        신청은 재취업한 날이 아니라 <strong>12개월을 채운 뒤</strong>에 합니다.
-        재취업일로부터 12개월이 지난 날의 다음날부터 3년 이내에 청구하세요.
+        신청은 재취업한 날이 아니라 <strong>12개월을 채운 뒤</strong>에 합니다(65세
+        이상은 재취업 직후부터). 청구권은 3년이 지나면 소멸하니 그 안에 청구하세요.
         재취업하고 잊고 지내다 못 받는 경우가 가장 많습니다.
       </p>
     </div>

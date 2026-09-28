@@ -28,6 +28,7 @@ const BASE_YEAR_OPTIONS = [...AVAILABLE_YEARS]
 
 export default function JobseekerCalculator() {
   const [wage, setWage] = useState("300");
+  const [hours, setHours] = useState("8");
   const [ageGroup, setAgeGroup] = useState<"under50" | "over50" | "disabled">("under50");
   const [insured, setInsured] = useState<InsuredBracket>("y3to5");
   // 정적 프리렌더라 서버는 '빌드 시점', 브라우저는 '조회 시점'의 연도를 본다.
@@ -69,6 +70,7 @@ export default function JobseekerCalculator() {
           disabled: ageGroup === "disabled",
           insured,
           leaveYear: Number(year),
+          dailyHours: parseMoney(hours) ?? 8,
         });
 
   const band = rateAppliesWageRange(Number(year));
@@ -82,6 +84,15 @@ export default function JobseekerCalculator() {
         value={wage}
         onChange={setWage}
         placeholder="300"
+      />
+
+      <MoneyField
+        label="하루 소정근로시간"
+        hint="근로계약서상 하루 근무시간. 하한액이 이 시간에 비례합니다 (8시간이면 66,048원)"
+        unit="시간"
+        value={hours}
+        onChange={setHours}
+        placeholder="8"
       />
 
       <OptionGroup
@@ -161,16 +172,27 @@ export default function JobseekerCalculator() {
               <p className="font-bold text-accent-strong">하한액이 적용됐습니다</p>
               <p className="mt-1.5 text-muted">
                 평균임금의 60%({formatWon(result.rawDaily)})가 하한액
-                {" "}{formatWon(result.limits.dailyMin)}에 못 미쳐 하한액을 받습니다.
-                {" "}
-                <strong>
-                  월 급여가 약 {Math.round(band.fromMonthly / 10_000).toLocaleString()}만원
-                  미만이면 급여가 얼마든 결과가 같습니다.
-                </strong>{" "}
-                실업급여를 &ldquo;평균임금의 60%&rdquo;로 알고 계신 분이 많지만,
-                실제로 그 비율이 적용되는 사람은
-                월 {Math.round(band.fromMonthly / 10_000).toLocaleString()}만~
-                {Math.round(band.toMonthly / 10_000).toLocaleString()}만원 구간뿐입니다.
+                {" "}{formatWon(result.dailyMinApplied)}에 못 미쳐 하한액을 받습니다.
+                {result.dailyHours === 8 ? (
+                  <>
+                    {" "}
+                    <strong>
+                      하루 8시간 근무자는 월 급여가 약{" "}
+                      {Math.round(band.fromMonthly / 10_000).toLocaleString()}만원 미만이면
+                      급여가 얼마든 결과가 같습니다.
+                    </strong>{" "}
+                    실업급여를 &ldquo;평균임금의 60%&rdquo;로 알고 계신 분이 많지만,
+                    실제로 그 비율이 적용되는 사람은
+                    월 {Math.round(band.fromMonthly / 10_000).toLocaleString()}만~
+                    {Math.round(band.toMonthly / 10_000).toLocaleString()}만원 구간뿐입니다.
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    하한액은 하루 소정근로시간에 비례해서, {result.dailyHours}시간 근무자는
+                    8시간 기준 {formatWon(result.limits.dailyMin)}보다 낮습니다.
+                  </>
+                )}
               </p>
             </div>
           )}
@@ -188,8 +210,8 @@ export default function JobseekerCalculator() {
           <p className="mt-4 text-sm text-muted">
             {usingFallback ? `${LATEST_YEAR}년` : `${yearNum}년`} 기준 · 상한{" "}
             {formatWon(result.limits.dailyMax)} / 하한{" "}
-            {formatWon(result.limits.dailyMin)}(최저시급{" "}
-            {result.limits.minWage.toLocaleString()}원 × 80% × 8시간)
+            {formatWon(result.dailyMinApplied)}(최저시급{" "}
+            {result.limits.minWage.toLocaleString()}원 × 80% × {result.dailyHours}시간)
           </p>
         </ResultCard>
       )}

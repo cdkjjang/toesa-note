@@ -8,6 +8,7 @@ import {
   calcEligibility,
   forfeitedDays,
   lastSafeApplyDate,
+  payableDaysIfApplyToday,
   type LeaveReason,
 } from "@/lib/eligibility";
 import { BENEFIT_DAYS, INSURED_BRACKETS, type InsuredBracket } from "@/lib/jobseeker";
@@ -145,7 +146,7 @@ export default function EligibilityCalculator() {
           </ul>
 
           <div className="mt-5 border-t border-border-soft pt-4">
-            <p className="font-bold">수급기간 만료 {result.expiryDate}</p>
+            <p className="font-bold">수급기간 마지막 날 {result.expiryDate}</p>
             <p className="mt-1 text-[15px] text-muted">
               {result.expired
                 ? `${-result.daysLeft}일 전에 끝났습니다.`
@@ -159,9 +160,10 @@ export default function EligibilityCalculator() {
                 지금 신청해도 {lost}일치를 못 받습니다
               </p>
               <p className="mt-1.5 text-muted">
-                소정급여일수 {benefitDays}일인데 수급기간이 {result.daysLeft}일밖에
-                남지 않았습니다. 수급기간은 이직일 다음날부터 12개월이고,
-                이 날이 지나면 남은 일수가 있어도 지급이 끊깁니다.
+                소정급여일수는 {benefitDays}일인데, 오늘 신청해도 대기기간 7일을 빼면
+                마지막 날까지 {payableDaysIfApplyToday(result.daysLeft)}일밖에 받을 수
+                없습니다. 수급기간은 이직일 다음날부터 12개월이고, 이 기간이 끝나면
+                남은 일수가 있어도 지급이 끊깁니다.
               </p>
             </div>
           )}

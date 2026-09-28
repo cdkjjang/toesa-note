@@ -195,6 +195,24 @@ describe("구직급여 계산", () => {
   });
 });
 
+describe("단시간 근로자의 하한액 (법 제45조④·제46조)", () => {
+  it("하루 4시간이면 하한이 10,320 × 80% × 4 = 33,024원", () => {
+    const r = calcJobseeker({ ...base, monthlyWage: 1_500_000, dailyHours: 4 });
+    // 1,500,000 × 3 ÷ 91 = 49,450 → 60% = 29,670 < 33,024
+    expect(r.dailyMinApplied).toBe(33_024);
+    expect(r.dailyBenefit).toBe(33_024);
+    expect(r.bound).toBe("min");
+  });
+
+  it("시간을 넣지 않으면 8시간 기준 66,048원", () => {
+    expect(calcJobseeker(base).dailyMinApplied).toBe(66_048);
+  });
+
+  it("8시간을 넘겨 넣어도 8시간으로 자른다", () => {
+    expect(calcJobseeker({ ...base, dailyHours: 10 }).dailyMinApplied).toBe(66_048);
+  });
+});
+
 describe("60%가 적용되는 월급 구간", () => {
   it("2026년 기준 약 334만~344만원 사이뿐이다", () => {
     const range = rateAppliesWageRange(2026, 91);
