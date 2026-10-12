@@ -35,7 +35,9 @@
   - `lib/early-reemployment.ts` 조기재취업수당 — 다섯 요건 판정 + 남은 일수 × 1/2.
     요건 미달이어도 `potentialAmount`로 "얼마를 놓쳤는지"를 보여준다.
   - `lib/health-insurance.ts` 퇴사 후 건강보험 — 임의계속가입 보험료 + 신청 마감 D-day.
-- 가이드 10편: `lib/guides-1.ts`(실업급여 본편 5편) · `lib/guides-2.ts`(퇴사 이후 5편)
+- 가이드 **11편**: `lib/guides-1.ts`~`guides-5.ts` · `guides-6.ts`(2026-10 신규 1 — `unemployment-benefit-over-65`,
+  고용보험법 제10조②: 65세 이후 새로 고용되면 실업급여 적용 제외, 65세 전부터 피보험자격 유지·계속 고용은 예외.
+  징수법 제13조③ 실업급여 보험료 미징수, 실업크레딧은 60세 미만)
 - 계산기 페이지: `app/calc/{benefit,eligibility,early,health}/page.tsx`
   — SEO 해설 + `@graph`(FAQPage + BreadcrumbList) + `CalcNotes`(근거·예시·자주 틀리는 지점)
 - 허브 역링크: `components/HubGuideLink.tsx` → `lifebanjang.com/guide/job-loss`
