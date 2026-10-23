@@ -13,6 +13,11 @@ const BYL = (lsNm: string, bylNo: string) =>
 const JO = (law: string, jo: string) => `https://www.law.go.kr/법령/${law}/${jo}`;
 
 export const SRC = {
+  reform2026: {
+    label: "고용노동부 보도자료 「고용보험 제도개편 방안」 (2026. 9. 1.)",
+    href: "https://www.moel.go.kr/news/enews/report/enewsView.do?news_seq=19866",
+    note: "정부안 — 구직급여 주 6일 지급, 상한액을 하한액의 103%로 연동, 조기재취업수당 제외 기준 월 300만원, 2027년 실업급여 보험료율 노사 각 0.1%p 인상. 연내 법령 개정 목표, 시행일 미정",
+  },
   requirements: {
     label: "고용보험법 제40조",
     href: JO("고용보험법", "제40조"),
