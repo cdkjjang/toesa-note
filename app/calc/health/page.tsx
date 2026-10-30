@@ -156,6 +156,9 @@ export default function HealthPage() {
           </li>
         </ol>
 
+        {/* 두 번째 광고 자리 — 해설 끝, 자주 묻는 질문 앞 */}
+        <AdSlot slot="calc-mid" />
+
         <h2 className="mt-8 text-xl font-bold">자주 묻는 질문</h2>
         <dl className="space-y-4">
           {faq.map(({ q, a }) => (
