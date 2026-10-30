@@ -74,9 +74,9 @@ export default function HealthPage() {
 
       <HealthCalculator />
 
-      <NextStep calc="/calc/health" />
-
       <AdSlot slot="health-below-tool" />
+
+      <NextStep calc="/calc/health" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">

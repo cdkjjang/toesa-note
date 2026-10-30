@@ -77,9 +77,9 @@ export default function EarlyPage() {
 
       <EarlyReemploymentCalculator />
 
-      <NextStep calc="/calc/early" />
-
       <AdSlot slot="early-below-tool" />
+
+      <NextStep calc="/calc/early" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">

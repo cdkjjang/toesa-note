@@ -79,9 +79,9 @@ export default function EligibilityPage() {
 
       <EligibilityCalculator />
 
-      <NextStep calc="/calc/eligibility" />
-
       <AdSlot slot="eligibility-below-tool" />
+
+      <NextStep calc="/calc/eligibility" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">네 가지를 모두 만족해야 합니다</h2>
