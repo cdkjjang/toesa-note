@@ -1,0 +1,7 @@
+User-Agent: *
+Allow: /
+
+#다음 웹마스터 도구 소유확인 (webmaster.daum.net)
+#DaumWebMasterTool:d2edcfb359944889ae8dcd89cfd8aff2779740bbc6cfb948af71b07ad00e5392:CNSJIIGOISrSV2aL3hPlgQ==
+
+Sitemap: https://toesa.lifebanjang.com/sitemap.xml
