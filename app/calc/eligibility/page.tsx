@@ -8,6 +8,7 @@ import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { LATEST_YEAR } from "@/lib/jobseeker";
+import { jsonLdScript } from "@/lib/json-ld";
 
 // ⚠️ 제목의 연도를 **직접 적지 말 것.** `lib/jobseeker.ts`의 `LIMITS_BY_YEAR`에서
 //    끌어온다. 표에 새 연도를 넣으면 제목이 함께 따라온다.
@@ -67,7 +68,7 @@ export default function EligibilityPage() {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
       <h1 className="mb-2 text-2xl font-extrabold">
         수급자격 · 신청기한 계산기

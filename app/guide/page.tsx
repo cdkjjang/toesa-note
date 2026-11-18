@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { guides } from "@/lib/guides";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { jsonLdScript } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: "퇴사 가이드 — 실업급여·수급자격·건강보험·정산 총정리",
@@ -44,7 +45,7 @@ export default function GuideListPage() {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
       <h1 className="mb-2 text-2xl font-extrabold">퇴사 가이드</h1>
       <p className="mb-8 text-muted">

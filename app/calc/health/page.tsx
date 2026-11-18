@@ -7,6 +7,7 @@ import HealthCalculator from "@/components/HealthCalculator";
 import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { jsonLdScript } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: "퇴사 후 건강보험 계산기 — 임의계속가입 보험료·신청기한",
@@ -64,7 +65,7 @@ export default function HealthPage() {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
       <h1 className="mb-2 text-2xl font-extrabold">퇴사 후 건강보험 계산기</h1>
       <p className="mb-6 text-muted">
